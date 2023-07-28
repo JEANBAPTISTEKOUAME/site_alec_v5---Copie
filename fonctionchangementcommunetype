@@ -1,0 +1,176 @@
+	// Fonction de sélection des types de bâtiments en lien avec la commune
+			filterElem.onchange = () => {
+				const selectedTypes = Array.from(filterElem.selectedOptions, (option) => option.value);
+				const selectedCommunes = Array.from(communeSelect.selectedOptions, (option) => option.value);
+
+				let newGeoJSON = { ...filteredData };
+
+
+				// Si des types ont été sélectionnés, filtrer les bâtiments
+				if (selectedTypes.length > 0) {
+					if (selectedCommunes.length > 0) {
+						// Filtrer les features en fonction des communes sélectionnées
+						filteredFeatures = filteredData.features.filter(feature =>
+							selectedCommunes.includes(feature.properties.NOM_COM)
+						);
+					} else {
+						// Si aucune commune n'est sélectionnée, utiliser toutes les données
+						filteredFeatures = filteredData.features;
+					}
+
+					// Filtrer les features en fonction des types de bâtiments sélectionnés
+					newGeoJSON.features = filteredFeatures.filter(feature =>
+						selectedTypes.includes(feature.properties.TYPE)
+					);
+
+					// Mise à jour des sources de données de la carte avec les features filtrées
+					["ID_BAT", "bati", "cluster-count"].forEach(source => {
+						if (map.getSource(source)) {
+							map.getSource(source).setData(newGeoJSON);
+						}
+					});
+
+					// Zoom sur les types de bâtiments sélectionnés
+					const bounds = new maplibregl.LngLatBounds();
+					newGeoJSON.features.forEach(feature => {
+						bounds.extend(feature.geometry.coordinates);
+					});
+					map.fitBounds(bounds, {
+						padding: 20,
+						duration: 1000,
+					});
+				} else {
+					// Afficher tous les bâtiments de base car aucun type n'est sélectionné
+					newGeoJSON.features = [...geojson.features];
+
+					// Réinitialisation du zoom et des sources de données de la carte
+					map.flyTo({
+						zoom: 8,
+						center: [-1.68, 48.1272],
+					});
+				}
+			}
+            
+			// COMMUNES
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			// Accès au geojson des communes via l'appel à une constante
+			const geojsonUrl3 = "./data/CommunesALEC.geojson";
+
+			// Transformation du geojson en un tableau de données
+			fetch(geojsonUrl3)
+				.then((response) => response.json())
+				.then((data) => {
+					const geojson3 = data;
+
+					// Mise en forme de la couche des communes
+					map.addLayer({
+						id: "NOM_COM",
+						type: "fill",
+						source: {
+							type: "geojson",
+							data: geojson3,
+						},
+						paint: {
+							"fill-color": "rgba(0,0,0,0)",
+							"fill-outline-color": "#000000",
+						},
+						minzoom: 8.5,
+					});
+					/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+					// Extraction des noms des communes grâce à la propriété "NOM_COM"
+					const listeCom = geojson3.features.map(
+						(feature) => feature.properties.NOM_COM
+					);
+					// Création d'une liste unique de noms de communes
+					const uniquelisteEPCI = Array.from(new Set(listeCom));
+
+					// Affectation des noms de communes à la liste déroulante Communes
+					const filterElemCom = document.getElementById("liste-choix");
+
+					// Possibilité de sélectionner plusieurs communes(à revoir )
+					filterElemCom.multiple = true;
+
+					// Création d'un nouveau GEOJSON à partir des communes dans la liste
+					// Si aucun EPCI n'est sélectionné, toutes les communes sont affichées
+					// Si un ou plusieurs communes sont sélectionnés, seules les communes sont affichées
+					uniquelisteEPCI.forEach((EPCI) => {
+						const opt3 = document.createElement("option");
+						opt3.value = EPCI;
+						opt3.innerText = EPCI;
+						filterElemCom.appendChild(opt3);
+					});
+				
+
+          
+          
+          // fonction de selection et de lien entre les donnees
+
+            filterElemCom.onchange = () => {
+              const selectedTypes3 = Array.from(
+                filterElemCom.selectedOptions,
+                (option) => option.value
+              );
+
+              const newGeoJSON3 = { ...geojson3 };
+              const newGeoJSON4 = { ...geojson };
+              if (selectedTypes3.length > 0) {
+                newGeoJSON3.features = geojson3.features.filter((feature) =>
+                  selectedTypes3.includes(feature.properties.NOM_COM));
+
+                newGeoJSON4.features=newGeoJSON4.features.filter((feature)=>
+                selectedTypes3.includes(feature.properties.NOM_COM) ); //vérifie si la valeur de la propriété "NOM_COM" de l'entité actuelle est incluse dans le tableau "selectedTypes3". 
+                  console.log('hrhrh:',newGeoJSON4)
+
+                  // Mise à jour des sources de données de la carte avec les features filtrées
+                if (map.getSource("NOM_COM")) {
+                  map.getSource("NOM_COM").setData(newGeoJSON3);
+                }
+                if (map.getSource("ID_BAT")) {
+                  map.getSource("ID_BAT").setData(newGeoJSON4);
+                }
+
+                // Zoom sur les limites de contour des communes
+                const bounds = new maplibregl.LngLatBounds();
+                
+                newGeoJSON3.features.forEach((feature) => {
+                  const coordinates = feature.geometry.coordinates;
+
+                  if (feature.geometry.type === "Polygon") {
+                    coordinates.forEach((coord) => {
+                      coord.forEach((c) => bounds.extend(c));
+                    });
+                  } else if (feature.geometry.type === "MultiPolygon") {
+                    coordinates.forEach((poly) => {
+                      poly.forEach((coord) => {
+                        coord.forEach((c) => bounds.extend(c));
+                      });
+                    });
+                  }
+              });
+              map.fitBounds(bounds, {
+                padding: 20,
+                duration: 1000,
+              });
+            } else {
+              // Si aucune commune n'est sélectionnée, afficher toutes les communes et tous les bâtiments
+              newGeoJSON3.features = [...geojson3.features];
+              newGeoJSON4.features = [...geojson.features];
+
+              // Réinitialiser le zoom à la position et au niveau d'échelle initiaux
+              map.flyTo({
+                zoom: 8,
+                center: [-1.68, 48.1272],
+              });
+
+              // Mise à jour des sources de données de la carte avec les features non filtrées
+              if (map.getSource("NOM_COM")) {
+                map.getSource("NOM_COM").setData(newGeoJSON3);
+              }
+              if (map.getSource("ID_BAT")) {
+                map.getSource("ID_BAT").setData(newGeoJSON4);
+              }
+            }
+			
+		};
+	}); 

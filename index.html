@@ -36,7 +36,9 @@
   <!-- Encadrement de la carte et de la légende -->
   <div class="div1">
     <!-- Affichage de la carte -->
-    <div id="carte"></div>
+    <div id="carte">
+      <div id="chartLegend"></div>
+    </div>
     <!-- Bloc des bâtiments sur la gauche -->
     <div class="sidebar">
       <!-- En tête avec le titre -->
@@ -45,10 +47,10 @@
       </div>
       <div class="select-container">
         <!-- Liste pour afficher les bâtiments et leur commune -->
-        <select id="listings" class="listings"
+        <select id="listings" class="listings" 
          <option> </option>
         </select>
-        <div style="display: flex">
+        <div style="display: none">
           <!-- Bouton de désélection des bâtiments (tous sélectionnés par défaut, bug) -->
           <button1 id="deselect-all">Désélection des bâtiments</button1>
         </div>
@@ -58,9 +60,10 @@
     <!-- Affichage de la légende permettant de faire des sélection -->
     <div class id="legende">
       <h1>Menu de sélection</h1>
-      <p>Ce menu permet de mettre à jour la carte, les chiffres clés et les graphiques en fonction des différents boutons de sélections mis à disposition ci-dessous.
+      <p>Ce menu permet de mettre à jour la carte, les chiffres clés et les graphiques.
         <p />
-
+        <br>
+        
         <!-- Paramétrage du bouton de sélection des EPCI -->
       <div>
         <div class="button-container">
@@ -94,7 +97,7 @@
         <!-- Une div pour la liste déroulante qui ne sera pas affichée par défaut -->
         <div id="liste-container" style="display:none">
           <!-- Une liste déroulante permettant de sélectionner plusieurs communes en même temps -->
-          <select id="liste-choix" >
+          <select id="liste-choix" multiple>
           </select>
         </div>
       </div>
@@ -123,7 +126,11 @@
           <select id="liste-choix4" multiple>
           </select>
         </div>
-    
+
+        <!--- Un bouton pour mettre à jour les graphiques apèrs avoir effectué des selections -->
+    <div class="bouton-contenair">
+      <button1 id ="updateChartButton"> Mise à jour du graphique</button1>
+    </div>
       </div>
 
       <!-- Un menu qui récapitule toutes les sélections en cours sur la page ( à voir, supprimer plus tard) -->
@@ -146,23 +153,29 @@
       <div id="agrandir">+</div>
       <h1>Consommation et dépense d'énergie par année et par type d'énergie</h1>
       <!-- Une div pour afficher le premier graphique -->
-      <div class="graphique">
+      <div class="isResizable">
         <!-- Une balise canvas pour afficher le premier graphique -->
-        <canvas id="myChart"></canvas>
+        <canvas id="myChart" ></canvas> <!--style="background-color: #fbf9f9;"
+        <!-- Div pour afficher la légende des barres -->
+    <div id="barLegend"></div>
+    <!-- Div pour afficher la légende des lignes -->
+    <div id="lineLegend"></div>
       </div>
     </div>
 
     <!-- Une div pour le deuxième graphique -->
     <div class id="graphique2">
-      
+
       <h1>Volume de consommation sur ratio surfacique</h1>
-      <p>L'axe X représente la consommation moyenne en kW/hᵉᶠ.</p>
-      <p>L'axe Y représente la consommation moyenne par surface en kW/hᵉᶠ/m².</p>
+      <p>L'axe X représente la consommation moyenne en kW/h.</p>
+      <p>L'axe Y représente la consommation moyenne par surface en kW/h/m².</p>
       <p>La taille des bulles varie en fonction de la dépense moyenne par surface en €/m².</p>
+      
       <!-- Une div pour afficher le deuxième graphique -->
       <div class="graphique">
         <!-- Une balise canvas pour afficher le deuxième graphique -->
         <canvas id="myChart2"></canvas>
+        
         <!-- Un input de type texte pour sélectionner les années -->
         <input type="text" id="rangeSlider1" class="rangeSlider" value="" />
       </div>

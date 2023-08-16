@@ -1,4 +1,31 @@
 /* Le style de la page */
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('fonts/LemonMilk-Regular.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('fonts/LemonMilk-Bold.otf');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('fonts/LemonMilk-Italic.otf');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('fonts/LemonMilk-BoldItalic.otf');
+  font-weight: bold;
+  font-style: italic;
+}
 
 body,
 html {
@@ -39,6 +66,7 @@ div.circle {
   justify-content: center;
   z-index: 9999;
 }
+
 div.circle:before {
   position: absolute;
   top: 0;
@@ -52,10 +80,12 @@ div.circle:before {
   border-radius: 100px;
   filter: blur(7px);
 }
+
 div.circle.long {
   width: 200px;
   height: 80px;
 }
+
 div.circle.long:before {
   position: absolute;
   top: 50px;
@@ -63,6 +93,7 @@ div.circle.long:before {
   width: 200px;
   height: 80px;
 }
+
 div.circle:before {
   box-shadow: 1px 1px 10px #a9a8b7, -1px -1px 10px #fff;
 }
@@ -127,6 +158,7 @@ h52 {
   box-shadow: 2px 2px 5px #888;
   border-radius: 15px 15px 15px 15px;
   z-index: 1;
+
 }
 
 /* Style du bloc de la légende. La légende occupe 20% de la largeur de l'écran et est positionnée à droite */
@@ -180,7 +212,7 @@ h52 {
 /* Le style du titre du premier graphique */
 #graphique1 h1 {
   font-family: Avantgarde, TeX Gyre Adventor, URW Gothic L, sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   position: static;
   text-align: center;
 }
@@ -417,7 +449,7 @@ h52 {
 .button-container {
   margin-bottom: 5px;
   z-index: 1000;
-  
+
 }
 
 /* Style des boutons */
@@ -563,7 +595,7 @@ input[type="checkbox"] {
   height: 12px;
   -webkit-appearance: none;
   -moz-appearance: none;
-       appearance: none;
+  appearance: none;
   background: #c6d8d3;
   outline: none;
   border-radius: 2rem;
@@ -678,9 +710,11 @@ body .sidebar {
   border-left: 0;
   background: rgba(0, 0, 0, 0.1);
 }
+
 ::-webkit-scrollbar-track {
   background: none;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #2f5388;
   border-radius: 0;
@@ -690,10 +724,12 @@ body .sidebar {
 .mapboxgl-popup-close-button {
   display: none;
 }
+
 .mapboxgl-popup-content {
   padding: 0;
   width: 180px;
 }
+
 .mapboxgl-popup-content h3 {
   background: #2f5388;
   color: #e5e5e5;
@@ -714,11 +750,11 @@ body .sidebar {
   padding: 10px;
 }
 
-.mapboxgl-popup-anchor-top > .mapboxgl-popup-content {
+.mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
   margin-top: 15px;
 }
 
-.mapboxgl-popup-anchor-top > .mapboxgl-popup-tip {
+.mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
   border-bottom-color: #91c949;
 }
 
@@ -745,7 +781,7 @@ ul#selections-liste li {
 
 /* Style des rangeslider des petits blocs */
 .rangeSlider-container {
-  width: 75%;
+  width: 100%;
   position: relative;
   margin-left: auto;
   margin-right: auto;
@@ -792,14 +828,23 @@ ul#selections-liste li {
 
 /* couleur du range.slier*/
 
+.irs-bar {
+
+  /* Couleur d'arrière-plan intérieure */
+  border: 1px solid #9b9898c5 !important;
+
+  /* Bordure */
+}
+
+
 .irs .irs-bar {
-  background: #cf1111 !important;
+  background: #f3efeff2 !important;
 }
 
 
 .irs .irs-single {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff;
+  color: hsl(0, 0%, 100%) !important;
+  -webkit-text-fill-color: #ffffff;
 }
 
 
@@ -896,7 +941,7 @@ h100 {
   top: 6%;
 }
 
-.facebook{
+.facebook {
   position: absolute;
   width: 30px;
   height: 30px;
@@ -904,7 +949,7 @@ h100 {
   top: 15%;
 }
 
-.twitter{
+.twitter {
   position: absolute;
   width: 30px;
   height: 26px;
@@ -912,7 +957,7 @@ h100 {
   top: 18%;
 }
 
-.instagram{
+.instagram {
   position: absolute;
   width: 30px;
   height: 30px;
@@ -921,11 +966,50 @@ h100 {
 }
 
 
-/* MES STYLE NEW
+/* MES STYLE NEW*/
 
-batiment {
-    font-weight: bold;
-    margin-top: 10px;
-    background-color: #2f5388;
-    color:rgb(255, 252, 252);
+#chartLegend {
+  max-width: 50%;
+  /* Fait en sorte que le conteneur ne dépasse pas la largeur de son parent */
+  max-height: 100%;
+  /* Fait en sorte que le conteneur ne dépasse pas la hauteur de son parent */
+  overflow: auto;
+  /* Si le contenu est trop grand, affichez des barres de défilement */
+  box-sizing: border-box;
+  /* Prend en compte les paddings et les bordures dans les dimensions du conteneur */
+}
+
+#chartLegend ul {
+  list-style-type: none;
+  /* Supprime les puces */
+  padding-left: 0;
+  /* Supprime le padding à gauche */
+  margin: 0;
+  /* Supprime les marges pour éviter les décalages supplémentaires */
+}
+
+#chartLegend li {
+  padding: 1px 0;
+  /* Ajoute un petit espacement entre les éléments de la liste pour une meilleure lisibilité */
+  display: flex;
+  /* Utilisation de Flexbox */
+  align-items: center;
+  /* Centrage vertical du contenu */
+  padding: 5px 0;
+}
+
+
+#chartLegend {
+  z-index: 99;
+  position: absolute;
+  bottom: 25px;
+  /* Marge du bas pour le positionnement */
+  right: 5px;
+  /* Marge de droite pour le positionnement */
+  background-color: rgba(255, 255, 255, 0.8);
+  /* Un fond légèrement transparent */
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  /* Une petite ombre pour la légende */
 }

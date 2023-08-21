@@ -1415,7 +1415,7 @@ fetch("./data/BD_conso.json")
                 (selectedRenovation.length === 0 ||
                   selectedRenovation.includes(batiment["RENOVATION"])) &&
                 (selectedbati.length === 0 ||
-                  selectedbati.includes(batiment["NOM_BATI"]))
+                  selectedbati.includes(batiment["ID_BAT"]))
             );
           // Calcul de la consommation totale pour le type d'énergie et l'année actuelle
           const consumption = buildings.reduce(
@@ -1697,7 +1697,7 @@ $(document).ready(function () {
             (selectedRenovation === "" ||
               item["RENOVATION"] === selectedRenovation) &&
             (selectedBatiList.length === 0 ||
-              selectedBatiList.includes(item["NOM_BATI"])) &&
+              selectedBatiList.includes(item["ID_BAT"])) &&
             item["ANNEE"] >= selectedYearRange.from &&
             item["ANNEE"] <= selectedYearRange.to
           );
@@ -1833,7 +1833,7 @@ fetch("./data/BD_conso.json")
           (selectedRenovation.length === 0 ||
             selectedRenovation.includes(batiment["RENOVATION"])) &&
           (selectedbati.length === 0 ||
-            selectedbati.includes(batiment["NOM_BATI"]))
+            selectedbati.includes(batiment["ID_BAT"]))
       );
 
       console.log("objet filtré:", filteredData);
@@ -2154,7 +2154,7 @@ function updateYearRange(
       (epci.length === 0 || epci.includes(d["NOM_EPCI"])) &&
       (batiment === "" || batiment === d["TYPE"]) &&
       (renovation === "" || renovation === d["RENOVATION"]) &&
-      (batiselectArray.length === 0 || batiselectArray.includes(d["NOM_BATI"]))
+      (batiselectArray.length === 0 || batiselectArray.includes(d["ID_BAT"]))
     ) {
       years.add(+d["ANNEE"]);
     }
@@ -2185,7 +2185,6 @@ function updateChiffresCles(
   //creation d'un ensemble pour suivres les années distinctes
   var distinctYears = new Set();
 
-
   // Parcours des données et cumul des consommations et dépenses selon les filtres spécifiés
   data.forEach(function (d) {
     var year = +d["ANNEE"];
@@ -2199,8 +2198,8 @@ function updateChiffresCles(
       year >= fromYear &&
       year <= toYear
     ) {
-       // Ajout de l'année à l'ensemble des années distinctes
-       distinctYears.add(year);
+      // Ajout de l'année à l'ensemble des années distinctes
+      distinctYears.add(year);
       sum +=
         (+d["Consommation en Electricité"] || 0) +
         (+d["Consommation en gaz naturel"] || 0) +
@@ -2222,7 +2221,7 @@ function updateChiffresCles(
   });
 
   var averageConso = sum / distinctYears.size;
-  var averageDepenses = sumDepenses /distinctYears.size;
+  var averageDepenses = sumDepenses / distinctYears.size;
   // Mise à jour des éléments HTML avec les nouvelles valeurs calculées
 
   if (fromYear === toYear) {
@@ -2360,12 +2359,216 @@ request.send();
 
 let activeFeatureId = null;
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 //ici mettre le menu gauche
 
 //    GESTION DU MENU DE GAUCHE
+
+$.ajax({
+  url: "./data/BD_BATI.geojson",
+  dataType: "json",
+  success: function (data) {
+    data.features.sort((a, b) => {
+      const aCommune = a.properties.NOM_COM;
+      const bCommune = b.properties.NOM_COM;
+      const aNomBati = a.properties.NOM_BATI;
+      const bNomBati = b.properties.NOM_BATI;
+
+      if (aCommune === bCommune) {
+        return aNomBati.localeCompare(bNomBati);
+      }
+
+      return aCommune.localeCompare(bCommune);
+    });
+
+    const groupedByCommune = data.features.reduce((groups, feature) => {
+      const commune = feature.properties.NOM_COM;
+      if (!groups[commune]) {
+        groups[commune] = [];
+      }
+      groups[commune].push(feature);
+      return groups;
+    }, {});
+
+    const filterElem = document.getElementById("listings");
+    filterElem.multiple = true;
+    filterElem.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      filterElem.addEventListener("scroll", function () {
+        sessionStorage.setItem("scrollPosition", this.scrollTop);
+      });
+
+      const option = e.target;
+      if (option.tagName === "OPTION") {
+        if (option.selected) {
+          option.selected = false;
+        } else {
+          option.selected = true;
+        }
+        const event = new Event("change");
+        this.dispatchEvent(event);
+      }
+    });
+
+    Object.entries(groupedByCommune).forEach(([commune, features]) => {
+      const optGroup = document.createElement("optgroup");
+      optGroup.label = commune;
+
+      features.forEach((feature) => {
+        const opt = document.createElement("option");
+        opt.value = feature.properties.ID_BAT;
+        opt.innerText = feature.properties.NOM_BATI;
+        optGroup.appendChild(opt);
+      });
+
+      filterElem.appendChild(optGroup);
+    });
+
+    filterElem.onchange = () => {
+      const selectedIds = Array.from(
+        filterElem.selectedOptions,
+        (option) => option.value
+      );
+
+      closeAllPopups();
+      updateMap(data, selectedIds);
+      updateSelectionsList(selectedIds);
+    };
+
+    function updateSelectionsList(selectedIds) {
+      const selectedTypes = selectedIds.map(
+        (id) =>
+          data.features.find((feature) => feature.properties.ID_BAT === id)
+            .properties.NOM_BATI
+      );
+
+      const selectionsListElem = document.getElementById("selections-liste");
+      const selectionsBatiLabelElem = document.getElementById(
+        "selections-bati-label"
+      );
+
+      while (selectionsListElem.firstChild) {
+        selectionsListElem.firstChild.remove();
+      }
+
+      if (selectedTypes.length > 0) {
+        const selectedTypesText = selectedTypes.join(", ");
+        selectionsBatiLabelElem.innerHTML = "<strong>Bâtiments :</strong> ";
+        selectionsListElem.appendChild(selectionsBatiLabelElem);
+        selectionsListElem.innerHTML += selectedTypesText;
+      } else {
+        selectionsBatiLabelElem.innerHTML = " ";
+        selectionsListElem.appendChild(selectionsBatiLabelElem);
+      }
+
+      if (selectedTypes.length === 1) {
+        const selectedFeature = data.features.find(
+          (feature) => feature.properties.NOM_BATI === selectedTypes[0]
+        );
+        createPopUp(selectedFeature);
+      }
+    }
+
+    updateMap(data, []);
+
+    const deselectAllBtn = document.getElementById("deselect-all");
+    deselectAllBtn.addEventListener("click", () => {
+      const selectElem = document.getElementById("listings");
+      for (let i = 0; i < selectElem.options.length; i++) {
+        selectElem.options[i].selected = false;
+      }
+      closeAllPopups();
+      updateMap(data, []);
+      updateSelectionsList([]);
+    });
+
+    const savedScrollPosition = sessionStorage.getItem("scrollPosition");
+    if (savedScrollPosition !== null) {
+      filterElem.scrollTop = parseInt(savedScrollPosition, 10);
+    }
+  },
+});
+
+function updateMap(data, selectedIds) {
+  const newGeoJSON = { ...data };
+  if (selectedIds.length > 0) {
+    newGeoJSON.features = data.features.filter((feature) =>
+      selectedIds.includes(feature.properties.ID_BAT)
+    );
+
+    const bounds = new maplibregl.LngLatBounds();
+    newGeoJSON.features.forEach((feature) => {
+      bounds.extend(feature.geometry.coordinates);
+      createPopUp(feature);
+    });
+    map.fitBounds(bounds, {
+      padding: 20,
+      duration: 1000,
+      maxZoom: 17,
+    });
+  } else {
+    newGeoJSON.features = [...data.features];
+    map.flyTo({
+      zoom: 8,
+      center: [-1.68, 48.1272],
+    });
+  }
+}
+
+// Cette fonction crée une pop-up pour un bâtiment donné
+function createPopUp(feature, forceClose) {
+  const coordinates = feature.geometry.coordinates;
+  const nomBati = feature.properties.NOM_BATI;
+
+  // Créer une fenêtre contextuelle et la lier au bâtiment correspondant sur la carte
+  const popup = new maplibregl.Popup({ closeOnClick: false })
+    .setLngLat(coordinates)
+    .setHTML(
+      "<h3>" +
+        feature.properties.NOM_BATI +
+        "</h3><h4>" +
+        "Identifiant: " +
+        feature.properties.ID_BAT +
+        "<br/>" +
+        "Adresse : " +
+        feature.properties.ADRESSE +
+        "<br/>" +
+        "Surface : " +
+        feature.properties.SURFACE +
+        "m²" +
+        "<br/>" +
+        "Type : " +
+        feature.properties.TYPE +
+        "<br/>" +
+        "Déjà rénové : " +
+        feature.properties.RENOVATION +
+        "</h4>"
+    )
+    .addTo(map);
+
+  // Si cette fonction est appelée avec forceClose=true, fermer la pop-up correspondante
+  if (activeFeatureId === feature.properties.id && forceClose) {
+    const oldPopup = document.getElementById(`popup-${activeFeatureId}`);
+    if (oldPopup) oldPopup.remove();
+    activeFeatureId = null;
+  } else {
+    // Sinon, attribuer un identifiant unique à la pop-up et enregistrer l'ID du bâtiment correspondant pour une utilisation ultérieure
+    popup.getElement().id = `popup-${feature.properties.id}`;
+    activeFeatureId = feature.properties.id;
+  }
+}
+
+// Cette fonction ferme toutes les fenêtres contextuelles ouvertes sur la carte
+function closeAllPopups() {
+  const popUps = document.getElementsByClassName("maplibregl-popup");
+  while (popUps[0]) {
+    popUps[0].remove();
+  }
+  activeFeatureId = null;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
 
 //
 

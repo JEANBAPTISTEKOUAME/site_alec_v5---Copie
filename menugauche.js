@@ -1,10 +1,4 @@
-
-
-//    GESTION DU MENU DE GAUCHE 
-
-
-
-
+//    GESTION DU MENU DE GAUCHE
 
 /// Récupération des données des bâtiments depuis le fichier GeoJSON
 $.ajax({
@@ -86,19 +80,6 @@ $.ajax({
       // Mettre à jour la liste des bâtiments sélectionnés
       updateSelectionsList(selectedTypes);
     };
-
-
-
-
-
-    // Mettre à jour la liste des bâtiments sélectionnés quand l'utilisateur selctionne une commune 
-    function updateSelectionsListe1(selectionsCom){
-      const selection
-    }
-
-
-
-
 
     // Mettre à jour la liste des bâtiments sélectionnés
     function updateSelectionsList(selectedTypes) {
@@ -200,7 +181,7 @@ function createPopUp(feature, forceClose) {
         "</h3><h4>" +
         "Identifiant: " +
         feature.properties.ID_BAT +
-        "<br/>"+
+        "<br/>" +
         "Adresse : " +
         feature.properties.ADRESSE +
         "<br/>" +
@@ -238,38 +219,34 @@ function closeAllPopups() {
   activeFeatureId = null;
 }
 
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////////
 
 // Ecouteur d'événements pour le bouton "Communes"
-document.getElementById("btn-choix").addEventListener("click", function() {
+document.getElementById("btn-choix").addEventListener("click", function () {
   const listeContainer = document.getElementById("liste-container");
   if (listeContainer.style.display === "none") {
-      listeContainer.style.display = "block";
+    listeContainer.style.display = "block";
   } else {
-      listeContainer.style.display = "none";
+    listeContainer.style.display = "none";
   }
 });
 
 // Ecouteur d'événements pour la sélection des communes
-document.getElementById("liste-choix").addEventListener("change", function() {
-  const selectedCommunes = Array.from(this.selectedOptions, option => option.value);
+document.getElementById("liste-choix").addEventListener("change", function () {
+  const selectedCommunes = Array.from(
+    this.selectedOptions,
+    (option) => option.value
+  );
   const listingsElement = document.getElementById("listings");
-  
+
   if (selectedCommunes.length > 0) {
-      // Si une ou plusieurs communes valides sont sélectionnées, affichez le menu de sélection des bâtiments
-      listingsElement.style.display = "block";
-      // Ici, vous pouvez également filtrer les bâtiments de ces communes et les ajouter au menu de sélection des bâtiments
+    // Si une ou plusieurs communes valides sont sélectionnées, affichez le menu de sélection des bâtiments
+    listingsElement.style.display = "block";
+    // Ici, vous pouvez également filtrer les bâtiments de ces communes et les ajouter au menu de sélection des bâtiments
   } else {
-      // Si aucune commune n'est sélectionnée, cachez le menu de sélection des bâtiments
-      listingsElement.style.display = "none";
+    // Si aucune commune n'est sélectionnée, cachez le menu de sélection des bâtiments
+    listingsElement.style.display = "none";
   }
 });
-
-
-
 
 //je souhaite dans ce menu en plus des selection possible , le menu s'affiche que lorsque l'utilisateur aura selectionné une commune coorespondante

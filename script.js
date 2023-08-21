@@ -2184,14 +2184,14 @@ function updateChiffresCles(
   var sumDepenses = 0;
   //creation d'un ensemble pour suivres les années distinctes
   var distinctYears = new Set();
-  const numberOfYears = toYear - fromYear + 1;
+
 
   // Parcours des données et cumul des consommations et dépenses selon les filtres spécifiés
   data.forEach(function (d) {
     var year = +d["ANNEE"];
     if (
-      (commune.length === 0 || commune.includes(d["NOM_COM"])) &&
-      (epci.length === 0 || epci.includes(d["NOM_EPCI"])) &&
+      (commune === "" || commune === d["NOM_COM"]) &&
+      (epci === "" || epci === d["NOM_EPCI"]) &&
       (batiment === "" || batiment === d["TYPE"]) &&
       (renovation === "" || renovation === d["RENOVATION"]) &&
       (batiselectArray.length === 0 ||
@@ -2199,6 +2199,8 @@ function updateChiffresCles(
       year >= fromYear &&
       year <= toYear
     ) {
+       // Ajout de l'année à l'ensemble des années distinctes
+       distinctYears.add(year);
       sum +=
         (+d["Consommation en Electricité"] || 0) +
         (+d["Consommation en gaz naturel"] || 0) +
@@ -2219,8 +2221,8 @@ function updateChiffresCles(
     }
   });
 
-  var averageConso = sum / numberOfYears;
-  var averageDepenses = sumDepenses / numberOfYears;
+  var averageConso = sum / distinctYears.size;
+  var averageDepenses = sumDepenses /distinctYears.size;
   // Mise à jour des éléments HTML avec les nouvelles valeurs calculées
 
   if (fromYear === toYear) {
@@ -2243,14 +2245,13 @@ function updateChiffresCles(
 function initializeRangeSlider(data, minYear, maxYear) {
   $("#rangeSlider3").ionRangeSlider({
     type: "double",
-    skin: "flat skin",
     min: minYear,
     max: maxYear,
     from: maxYear,
     to: maxYear,
     onFinish: function (dataSlider) {
-      var commune = getSelectedValuesFromMultipleSelect("liste-choix");
-      var epci = getSelectedValuesFromMultipleSelect("liste-choix5");
+      var commune = document.getElementById("liste-choix").value;
+      var epci = document.getElementById("liste-choix5").value;
       var batiment = document.getElementById("liste-choix2").value;
       var renovation = document.getElementById("liste-choix4").value;
       var batiselect = document.getElementById("listings");
@@ -2300,9 +2301,8 @@ request.onload = function () {
     function attachEventListeners(buttonIds) {
       buttonIds.forEach(function (id) {
         document.querySelector("#" + id).addEventListener("click", function () {
-          // Utilisez la nouvelle fonction pour récupérer les valeurs
-          var commune = getSelectedValuesFromMultipleSelect("liste-choix");
-          var epci = getSelectedValuesFromMultipleSelect("liste-choix5");
+          var commune = document.getElementById("liste-choix").value;
+          var epci = document.getElementById("liste-choix5").value;
           var batiment = document.getElementById("liste-choix2").value;
           var renovation = document.getElementById("liste-choix4").value;
           var batiselect = document.getElementById("listings");
@@ -2359,6 +2359,7 @@ request.onerror = function () {
 request.send();
 
 let activeFeatureId = null;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

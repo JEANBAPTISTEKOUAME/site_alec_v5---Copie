@@ -1485,315 +1485,284 @@ fetch("./data/BD_conso.json")
 //ctx" est déclarée et initialise un objet de contexte 2D pour le graphique.
 
 function createChart(labels, data, backgroundColors, units) {
-	var ctx = document.getElementById("myChart3").getContext("2d");
-  
-	// Fonction pour créer un donut chart
-	return new Chart(ctx, {
-	  type: "doughnut",
-	  data: {
-		labels: labels,
-		datasets: [
-		  {
-			data: data,
-			backgroundColor: backgroundColors,
-		  },
-		],
-	  },
-	  options: {
-		legend: {
-		  display: false,
-		  labels: {
-			fontColor: "black",
-			fontSize: 14,
-		  },
-		},
-		tooltips: {
-		  callbacks: {
-			// Mise// Mise en place des étiquettes personnalisées
-			label: function (tooltipItem, data) {
-			  var label = data.labels[tooltipItem.index] || "";
-			  var value =
-				Number(
-				  data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
-				) || 0;
-			  var dataset = data.datasets[tooltipItem.datasetIndex];
-			  var total = dataset.data.reduce(function (
-				previousValue,
-				currentValue
-			  ) {
-				return Number(previousValue) + Number(currentValue);
-			  });
-			  var percentage =
-				total !== 0
-				  ? Math.floor((value / total) * 100).toFixed(1) + "%"
-				  : "N/A";
-			  return label + ": " + value + units + " (" + percentage + ")";
-			},
-		  },
-		},
-	  },
-	});
-  }
-  
-  $(document).ready(function () {
-	// Couleurs d'arrière-plan pour les sections du donut chart
-	var backgroundColors = [
-	  "rgba(255, 99, 132, 0.7)",
-	  "rgba(54, 162, 235, 0.7)",
-	  "rgba(255, 206, 86, 0.7)",
-	  "rgba(75, 192, 192, 0.7)",
-	  "rgba(153, 102, 255, 0.7)",
-	  "rgba(255, 159, 64, 0.7)",
-	  "rgba(255, 99, 132, 0.7)",
-	];
-	// Étiquettes pour les consommations d'énergie
-	var labels = [
-	  "Consommation en Electricité",
-	  "Consommation en gaz naturel",
-	  "Consommation en gaz citerne",
-	  "Consommation en fioul",
-	  "Consommation en chaleur",
-	  "Consommation en bois",
-	  "Consommation en ENR",
-	];
-	// Étiquettes pour les dépenses d'énergie
-	var labels2 = [
-	  "Dépense en Electricité",
-	  "Dépense en gaz naturel",
-	  "Dépense en gaz citerne",
-	  "Dépense en fioul",
-	  "Dépense en chaleur",
-	  "Dépense en bois",
-	  "Dépense en ENR",
-	];
-	// Récupération des données JSON(à revoir pour stocker les données dans une variable et ne plu faire appel directemnt)
-	fetch("./data/BD_conso.json")
-	  .then((response) => response.json())
-	  .then((jsonData) => {
-		// Calcul des données pour la consommation d'énergie et les dépenses d'énergie
-		var dataConsumption = labels.map(function (label) {
-		  return jsonData.reduce(function (total, item) {
-			return total + (item[label] || 0);
-		  }, 0);
-		});
-		//console.log(dataConsumption);
-		var dataExpenses = labels2.map(function (label) {
-		  return jsonData.reduce(function (total, item) {
-			return total + (item[label] || 0);
-		  }, 0);
-		});
-  
-		//console.log(dataExpenses);
-		// Calcul de l'année minimale et maximale pour chaque commune
-		var yearsByCommune = jsonData.reduce((acc, item) => {
-		  // Si la commune n'est pas encore dans l'accumulateur, l'ajouter avec l'année actuelle
-		  if (!acc[item["NOM_COM"]]) {
-			acc[item["NOM_COM"]] = {
-			  minYear: item["ANNEE"],
-			  maxYear: item["ANNEE"],
-			};
-		  } else {
-			// Sinon, mettre à jour l'année minimale et maximale si nécessaire
-			if (item["ANNEE"] < acc[item["NOM_COM"]].minYear) {
-			  acc[item["NOM_COM"]].minYear = item["ANNEE"];
-			}
-			if (item["ANNEE"] > acc[item["NOM_COM"]].maxYear) {
-			  acc[item["NOM_COM"]].maxYear = item["ANNEE"];
-			}
-		  }
-		  return acc;
-		}, {});
-  
-		//console.log(yearsByCommune); // Imprime les années minimale et maximale pour chaque commune
-  
-		var selectedCommune = document.getElementById("liste-choix").value; // Obtenir la commune sélectionnée
-		//console.log(selectedCommune)
-		// Vérifiez si la commune sélectionnée existe dans yearsByCommune
-		if (yearsByCommune[selectedCommune]) {
-		  // Si elle existe, utilisez-la pour obtenir minYear et maxYear
-		  var maxYear = yearsByCommune[selectedCommune].maxYear;
-		} else {
-		  var minYear = Math.min(...jsonData.map((item) => item.ANNEE));
-		  var maxYear = Math.max(...jsonData.map((item) => item.ANNEE));
-		}
-		// // Utilisez la commune sélectionnée pour obtenir minYear et maxYear
-		// var minYear = yearsByCommune[selectedCommune].minYear;
-		// var maxYear = yearsByCommune[selectedCommune].maxYear;
-		//console.log(minYear, maxYear); // Imprime les années minimale et maximale
-  
-		// Création d'un graphique avec les données de consommation par défaut
-		var myChart = createChart(
-		  labels,
-		  dataConsumption,
-		  backgroundColors,
-		  " kW/h"
-		);
-  
-		// Ajout des gestionnaires d'événements pour les boutons
-		$("#consommationBtn").click(function () {
-		  myChart.destroy(); // Destruction du graphique existant
-		  myChart = createChart(
-			labels,
-			dataConsumption,
-			backgroundColors,
-			" kW/h"
-		  ); // Le graphique nouvellement créé est assigné à la variable "myChart"
-		});
-  
-		$("#depenseBtn").click(function () {
-		  myChart.destroy(); // Destruction du graphique existant
-		  myChart = createChart(labels2, dataExpenses, backgroundColors, " €"); // Le graphique nouvellement créé est assigné à la variable "myChart"
-		});
-  
-		$("#rangeSlider2").ionRangeSlider({
-		  type: "double",
-		  min: minYear,
-		  max: maxYear,
-		  from: maxYear,
-		  to: maxYear,
-		  onFinish: function (data) {
-			// Mettez à jour le graphique avec les nouvelles années sélectionnées
-			updateChartData();
-  
-		  },
-		});
-  
-		// Récupération de l'instance du curseur de sélection de plage
-		// Initialisation du curseur de plage d'années
-		var yearRangeSlider = $("#rangeSlider2").data("ionRangeSlider");
-		// pour garantirles données chargées sont celles de la dernière année
-		updateChartData();
-  
-		function updateChartData() {
-		  // Récupération des valeurs sélectionnées
-		  const selectedEpci = document.getElementById("liste-choix5").value;
-		  const selectedCommune = document.getElementById("liste-choix").value;
-		  const selectedType = document.getElementById("liste-choix2").value;
-		  const selectedRenovation =
-			document.getElementById("liste-choix4").value;
-		  const selectedBatiList = Array.from(
-			document.getElementById("listings").selectedOptions
-		  ).map((option) => option.value);
-  
-		  const selectedYearRange = {
-			from: yearRangeSlider.result.from,
-			to: yearRangeSlider.result.to,
-		  };
-  
-		  // Filtrage des données JSON en fonction des valeurs sélectionnées
-		  var filteredData = jsonData.filter(function (item) {
-			return (
-			  (selectedEpci === "" || item["NOM_EPCI"] === selectedEpci) &&
-			  (selectedCommune === "" || item["NOM_COM"] === selectedCommune) &&
-			  (selectedType === "" || item["TYPE"] === selectedType) &&
-			  (selectedRenovation === "" ||
-				item["RENOVATION"] === selectedRenovation) &&
-			  (selectedBatiList.length === 0 ||
-				selectedBatiList.includes(item["NOM_BATI"])) &&
-			  item["ANNEE"] >= selectedYearRange.from &&
-			  item["ANNEE"] <= selectedYearRange.to
-			);
-		  });
-  
-		  /*      ///////////////////////à suprimer//////////////////////////////////////////////////////////////////////////////////
-					// Mise à jour des données de consommation en fonction des données filtrées
-					dataConsumption = labels.map(function (label) {
-					  return filteredData.reduce(function (total, item) {
-						return total + (item[label] || 0);
-					  }, 0);
-					}); */
-  
-			dataConsumption = labels.map(function (label) {
-			  var distinctYears = new Set(); // Pour suivre les années distinctes avec des données
-			  var sum = filteredData.reduce(function (total, item) {
-				if (item[label]) { // Étape 2: Vérification si l'entrée contient des données
-				  distinctYears.add(item["ANNEE"]); // Ajouter l'année si elle a des données
-				}
+  var ctx = document.getElementById("myChart3").getContext("2d");
+
+  // Fonction pour créer un donut chart
+  return new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: backgroundColors,
+        },
+      ],
+    },
+    options: {
+      legend: {
+        display: false,
+        labels: {
+          fontColor: "black",
+          fontSize: 14,
+        },
+      },
+      tooltips: {
+        callbacks: {
+          // Mise// Mise en place des étiquettes personnalisées
+          label: function (tooltipItem, data) {
+            var label = data.labels[tooltipItem.index] || "";
+            var value =
+              Number(
+                data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+              ) || 0;
+            var dataset = data.datasets[tooltipItem.datasetIndex];
+            var total = dataset.data.reduce(function (
+              previousValue,
+              currentValue
+            ) {
+              return Number(previousValue) + Number(currentValue);
+            });
+            var percentage =
+              total !== 0
+                ? Math.floor((value / total) * 100).toFixed(1) + "%"
+                : "N/A";
+            return label + ": " + value + units + " (" + percentage + ")";
+          },
+        },
+      },
+    },
+  });
+}
+
+$(document).ready(function () {
+  // Couleurs d'arrière-plan pour les sections du donut chart
+  var backgroundColors = [
+    "rgba(54, 162, 235, 0.7)", //ELEC
+    "rgba(255, 206, 86, 0.7)", // gaz na
+    "rgba(255, 159, 64, 0.7)", //cit
+    "rgba(255, 99, 132, 0.7)", // fioul
+    "rgba(153, 102, 255, 0.7)", // chaleur
+    "rgba(50, 50, 50, 0.7)", //bois
+    "rgba(0, 255, 0, 0.7)", //ENR
+  ];
+  // Étiquettes pour les consommations d'énergie
+  var labels = [
+    "Consommation en Electricité",
+    "Consommation en gaz naturel",
+    "Consommation en gaz citerne",
+    "Consommation en fioul",
+    "Consommation en chaleur",
+    "Consommation en bois",
+    "Consommation en ENR",
+  ];
+  // Étiquettes pour les dépenses d'énergie
+  var labels2 = [
+    "Dépense en Electricité",
+    "Dépense en gaz naturel",
+    "Dépense en gaz citerne",
+    "Dépense en fioul",
+    "Dépense en chaleur",
+    "Dépense en bois",
+    "Dépense en ENR",
+  ];
+  // Récupération des données JSON(à revoir pour stocker les données dans une variable et ne plu faire appel directemnt)
+  fetch("./data/BD_conso.json")
+    .then((response) => response.json())
+    .then((jsonData) => {
+      // Calcul des données pour la consommation d'énergie et les dépenses d'énergie
+      var dataConsumption = labels.map(function (label) {
+        return jsonData.reduce(function (total, item) {
+          return total + (item[label] || 0);
+        }, 0);
+      });
+      //console.log(dataConsumption);
+      var dataExpenses = labels2.map(function (label) {
+        return jsonData.reduce(function (total, item) {
+          return total + (item[label] || 0);
+        }, 0);
+      });
+
+      //console.log(dataExpenses);
+      // Calcul de l'année minimale et maximale pour chaque commune
+      var yearsByCommune = jsonData.reduce((acc, item) => {
+        // Si la commune n'est pas encore dans l'accumulateur, l'ajouter avec l'année actuelle
+        if (!acc[item["NOM_COM"]]) {
+          acc[item["NOM_COM"]] = {
+            minYear: item["ANNEE"],
+            maxYear: item["ANNEE"],
+          };
+        } else {
+          // Sinon, mettre à jour l'année minimale et maximale si nécessaire
+          if (item["ANNEE"] < acc[item["NOM_COM"]].minYear) {
+            acc[item["NOM_COM"]].minYear = item["ANNEE"];
+          }
+          if (item["ANNEE"] > acc[item["NOM_COM"]].maxYear) {
+            acc[item["NOM_COM"]].maxYear = item["ANNEE"];
+          }
+        }
+        return acc;
+      }, {});
+
+      //console.log(yearsByCommune); // Imprime les années minimale et maximale pour chaque commune
+
+      var selectedCommune = document.getElementById("liste-choix").value; // Obtenir la commune sélectionnée
+      //console.log(selectedCommune)
+      // Vérifiez si la commune sélectionnée existe dans yearsByCommune
+      if (yearsByCommune[selectedCommune]) {
+        // Si elle existe, utilisez-la pour obtenir minYear et maxYear
+        var maxYear = yearsByCommune[selectedCommune].maxYear;
+      } else {
+        var minYear = Math.min(...jsonData.map((item) => item.ANNEE));
+        var maxYear = Math.max(...jsonData.map((item) => item.ANNEE));
+      }
+      // // Utilisez la commune sélectionnée pour obtenir minYear et maxYear
+      // var minYear = yearsByCommune[selectedCommune].minYear;
+      // var maxYear = yearsByCommune[selectedCommune].maxYear;
+      //console.log(minYear, maxYear); // Imprime les années minimale et maximale
+
+      // Création d'un graphique avec les données de consommation par défaut
+      var myChart = createChart(
+        labels,
+        dataConsumption,
+        backgroundColors,
+        " kW/h"
+      );
+
+      // Ajout des gestionnaires d'événements pour les boutons
+      $("#consommationBtn").click(function () {
+        myChart.destroy(); // Destruction du graphique existant
+        myChart = createChart(
+          labels,
+          dataConsumption,
+          backgroundColors,
+          " kW/h"
+        ); // Le graphique nouvellement créé est assigné à la variable "myChart"
+      });
+
+      $("#depenseBtn").click(function () {
+        myChart.destroy(); // Destruction du graphique existant
+        myChart = createChart(labels2, dataExpenses, backgroundColors, " €"); // Le graphique nouvellement créé est assigné à la variable "myChart"
+      });
+
+      $("#rangeSlider2").ionRangeSlider({
+        type: "double",
+        skin: "flat skin",
+        min: minYear,
+        max: maxYear,
+        from: maxYear,
+        to: maxYear,
+        onFinish: function (data) {
+          updateChartData();
+        },
+      });
+
+      // Récupération de l'instance du curseur de sélection de plage
+      // Initialisation du curseur de plage d'années
+      var yearRangeSlider = $("#rangeSlider2").data("ionRangeSlider");
+      // pour garantirles données chargées sont celles de la dernière année
+      updateChartData();
+
+      function updateChartData() {
+        // Récupération des valeurs sélectionnées pour les éléments <select multiple>
+        const getSelectedValues = (selectId) => {
+          return Array.from(
+            document.getElementById(selectId).selectedOptions
+          ).map((option) => option.value);
+        };
+
+        const selectedEpci = getSelectedValues("liste-choix5");
+        const selectedCommune = getSelectedValues("liste-choix");
+
+        const selectedBatiList = getSelectedValues("listings");
+
+        // Récupération des valeurs pour les éléments <select> simples
+        const selectedType = document.getElementById("liste-choix2").value;
+        const selectedRenovation =
+          document.getElementById("liste-choix4").value;
+
+        const selectedYearRange = {
+          from: yearRangeSlider.result.from,
+          to: yearRangeSlider.result.to,
+        };
+
+        // Filtrage des données JSON en fonction des valeurs sélectionnées
+        var filteredData = jsonData.filter(function (item) {
+          return (
+            (selectedEpci.length === 0 ||
+              selectedEpci.includes(item["NOM_EPCI"])) &&
+            (selectedCommune.length === 0 ||
+              selectedCommune.includes(item["NOM_COM"])) &&
+            (selectedType === "" || item["TYPE"] === selectedType) &&
+            (selectedRenovation === "" ||
+              item["RENOVATION"] === selectedRenovation) &&
+            (selectedBatiList.length === 0 ||
+              selectedBatiList.includes(item["NOM_BATI"])) &&
+            item["ANNEE"] >= selectedYearRange.from &&
+            item["ANNEE"] <= selectedYearRange.to
+          );
+        });
+
+        /*      ///////////////////////à suprimer//////////////////////////////////////////////////////////////////////////////////
+				  // Mise à jour des données de consommation en fonction des données filtrées
+				  dataConsumption = labels.map(function (label) {
+					return filteredData.reduce(function (total, item) {
+					  return total + (item[label] || 0);
+					}, 0);
+				  }); */
+
+        dataConsumption = labels.map(function (label) {
+          var values = filteredData.map(function (item) {
+            return item[label] || 0;
+          });
+          //console.log(dataConsumption);
+          var sum = values.reduce(function (total, value) {
+            return total + value;
+          }, 0);
+          //console.log(sum + "la somme");
+          var average =
+            sum / (selectedYearRange.to - selectedYearRange.from + 1);
+          return selectedYearRange.from === selectedYearRange.to
+            ? sum
+            : average.toFixed(1);
+        });
+
+        ////////////////////////////////////////////////////////////////
+
+        /* // Mise à jour des données de dépense en fonction des données filtrées
+			dataExpenses = labels2.map(function (label) {
+			  return filteredData.reduce(function (total, item) {
 				return total + (item[label] || 0);
 			  }, 0);
-			  var average = sum / distinctYears.size; // Utiliser la taille de l'ensemble pour calculer la moyenne
-			  return selectedYearRange.from === selectedYearRange.to ? sum : average.toFixed(1);
-			});
-  
-		  ////////////////////////////////////////////////////////////////
-  
-		  /* // Mise à jour des données de dépense en fonction des données filtrées
-			  dataExpenses = labels2.map(function (label) {
-				return filteredData.reduce(function (total, item) {
-				  return total + (item[label] || 0);
-				}, 0);
-			  }); */
-		  //////////////////////////////////////////////////////////////////////////
-		  dataExpenses = labels2.map(function (label) {
-			var distinctYears = new Set(); // Pour suivre les années distinctes avec des données
-			var sum = filteredData.reduce(function (total, item) {
-			  if (item[label]) {
-				distinctYears.add(item["ANNEE"]); // Ajouter l'année si elle a des données
-			  }
-			  return total + (item[label] || 0);
-			}, 0);
-			var average = sum / distinctYears.size; // Utiliser la taille de l'ensemble pour calculer la moyenne
-			return selectedYearRange.from === selectedYearRange.to ? sum : average.toFixed(1);
-		  });
-  
-		  // Mise à jour du graphique avec les nouvelles données
-		  myChart.data.datasets[0].data = dataConsumption;
-		  myChart.update();
-		}
-  
-		// Ajout d'un gestionnaire d'événements pour le bouton de mise à jour du graphique
-		document.getElementById("updateChartButton").addEventListener("click", function () {
-		  // Récupération des valeurs sélectionnées
-		  const selectedEpci = document.getElementById("liste-choix5").value;
-		  const selectedCommune = document.getElementById("liste-choix").value;
-		  const selectedType = document.getElementById("liste-choix2").value;
-		  const selectedRenovation = document.getElementById("liste-choix4").value;
-		  const selectedBatiList = Array.from(document.getElementById("listings").selectedOptions).map((option) => option.value);
-		
-		  // Calcul des années minimale et maximale en fonction des filtres
-		  var { minYear, maxYear } = calculateMinAndMaxYears(jsonData,selectedEpci, selectedCommune, selectedType, selectedRenovation, selectedBatiList);
-		
-		  // Mettez à jour le range slider avec les nouvelles années
-		  updateRangeSlider(minYear, maxYear);
-  
-	// Mettez à jour le graphique
-			updateChartData();
-		  });
-	  });
-  // fonction pour calculer les années minimale et maximale en fonction des filtres
-	  function calculateMinAndMaxYears(jsonData,selectedEpci, selectedCommune, selectedType, selectedRenovation, selectedBatiList) {
-		var minYear = Infinity;
-		var maxYear = -Infinity;
-	  
-		jsonData.forEach(function (item) {
-		  if (
-			(selectedEpci === "" || item["NOM_EPCI"] === selectedEpci) &&
-			(selectedCommune === "" || item["NOM_COM"] === selectedCommune) &&
-			(selectedType === "" || item["TYPE"] === selectedType) &&
-			(selectedRenovation === "" || item["RENOVATION"] === selectedRenovation) &&
-			(selectedBatiList.length === 0 || selectedBatiList.includes(item["NOM_BATI"]))
-		  ) {
-			if (item["ANNEE"] < minYear) minYear = item["ANNEE"];
-			if (item["ANNEE"] > maxYear) maxYear = item["ANNEE"];
-		  }
-		});
-	  
-		return { minYear, maxYear };
-	  }
-	  
-  // fonction pour mettre à jour le range slider
-  function updateRangeSlider(minYear, maxYear) {
-	var yearRangeSlider = $("#rangeSlider2").data("ionRangeSlider");
-	yearRangeSlider.update({
-	  min: minYear,
-	  max: maxYear,
-	  from: minYear,
-	  to: maxYear,
-	});
-  }
-  
-  });
-  
+			}); */
+        //////////////////////////////////////////////////////////////////////////
+        dataExpenses = labels2.map(function (label) {
+          var values = filteredData.map(function (item) {
+            return item[label] || 0;
+          });
+          var sum = values.reduce(function (total, value) {
+            return total + value;
+          }, 0);
+          var average =
+            sum / (selectedYearRange.to - selectedYearRange.from + 1);
+          return selectedYearRange.from === selectedYearRange.to
+            ? sum
+            : average.toFixed(1);
+        });
+
+        // Mise à jour du graphique avec les nouvelles données
+        myChart.data.datasets[0].data = dataConsumption;
+        myChart.update();
+      }
+
+      // Ajout d'un gestionnaire d'événements pour le bouton de mise à jour du graphique
+      document
+        .getElementById("updateChartButton")
+        .addEventListener("click", function () {
+          updateChartData();
+        });
+    });
+});
 
 //////////////////////////////////////////////////////////////////////////////////
 //  CREATON DU BUBBLE CHART ////////////////////////////////////////////////////////////////
@@ -2170,6 +2139,36 @@ generateLegend();
 var request = new XMLHttpRequest();
 request.open("GET", "./data/BD_conso.json", true);
 
+function updateYearRange(
+  data,
+  commune,
+  epci,
+  batiment,
+  renovation,
+  batiselectArray
+) {
+  var years = new Set();
+  data.forEach(function (d) {
+    if (
+      (commune.length === 0 || commune.includes(d["NOM_COM"])) &&
+      (epci.length === 0 || epci.includes(d["NOM_EPCI"])) &&
+      (batiment === "" || batiment === d["TYPE"]) &&
+      (renovation === "" || renovation === d["RENOVATION"]) &&
+      (batiselectArray.length === 0 || batiselectArray.includes(d["NOM_BATI"]))
+    ) {
+      years.add(+d["ANNEE"]);
+    }
+  });
+  var minYear = Math.min(...years);
+  var maxYear = Math.max(...years);
+  $("#rangeSlider3").data("ionRangeSlider").update({
+    min: minYear,
+    max: maxYear,
+    from: maxYear,
+    to: maxYear,
+  });
+}
+
 // Fonction pour mettre à jour les chiffres clés de consommation et de dépense totale
 function updateChiffresCles(
   data,
@@ -2294,6 +2293,8 @@ request.onload = function () {
 
     // Initialisation du curseur de plage d'années
     initializeRangeSlider(data, minYear, maxYear);
+    // Mise à jour initiale de la plage d'années
+    updateYearRange(data, [], [], "", "", []);
 
     // Ajout d'un écouteur d'événements pour mettre à jour les chiffres clés
     // Crée une fonction pour attacher le gestionnaire d'événements
@@ -2309,6 +2310,15 @@ request.onload = function () {
             function (option) {
               return option.value;
             }
+          );
+          // Mise à jour de la plage d'années
+          updateYearRange(
+            data,
+            commune,
+            epci,
+            batiment,
+            renovation,
+            batiselectArray
           );
 
           // Mise à jour des chiffres clés avec les nouvelles valeurs des filtres

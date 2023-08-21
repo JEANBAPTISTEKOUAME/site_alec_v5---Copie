@@ -3,8 +3,8 @@ var map = new maplibregl.Map({
   container: "carte",
   // Définition du fond de carte
   style:
-    //"https://api.maptiler.com/maps/voyager/style.json?key=rrASqj6frF6l2rrOFR4A",
-    "https://geoserveis.icgc.cat/contextmaps/positron.json",
+    "https://api.maptiler.com/maps/voyager/style.json?key=rrASqj6frF6l2rrOFR4A",
+  //"https://geoserveis.icgc.cat/contextmaps/positron.json",
   // Niveau de zoom par défaut
   zoom: 9,
   // Coordonnées de centrage de la carte par défaut
@@ -1295,7 +1295,7 @@ fetch("./data/BD_conso.json")
         borderColor: colors[index].replace("0.7", "0.9"), // more opaque
         pointBackgroundColor: colors[index].replace("0.7", "0.2"), // meme couleur que la line
         type: "line",
-        fill: false,
+        fill: true,
         yAxisID: "y-axis-2",
       };
 
@@ -1535,6 +1535,18 @@ function createChart(labels, data, backgroundColors, units) {
   });
 }
 
+// Fonction pour mettre à jour la plage d'années en fonction des sélections de l'utilisateur
+function updateYearRange(yearsBySelection) {
+  var minYear = Math.min(...yearsBySelection);
+  var maxYear = Math.max(...yearsBySelection);
+  $("#rangeSlider2").data("ionRangeSlider").update({
+    min: minYear,
+    max: maxYear,
+    from: maxYear,
+    to: maxYear,
+  });
+}
+
 $(document).ready(function () {
   // Couleurs d'arrière-plan pour les sections du donut chart
   var backgroundColors = [
@@ -1702,14 +1714,12 @@ $(document).ready(function () {
             item["ANNEE"] <= selectedYearRange.to
           );
         });
-
-        /*      ///////////////////////à suprimer//////////////////////////////////////////////////////////////////////////////////
-				  // Mise à jour des données de consommation en fonction des données filtrées
-				  dataConsumption = labels.map(function (label) {
-					return filteredData.reduce(function (total, item) {
-					  return total + (item[label] || 0);
-					}, 0);
-				  }); */
+        // Calcul de la nouvelle plage d'années en fonction des données filtrées
+        var yearsBySelection = filteredData.map(function (item) {
+          return +item["ANNEE"];
+        });
+        console.log("Years by selection:", yearsBySelection);
+        updateYearRange(yearsBySelection);
 
         dataConsumption = labels.map(function (label) {
           var values = filteredData.map(function (item) {
@@ -1726,16 +1736,6 @@ $(document).ready(function () {
             ? sum
             : average.toFixed(1);
         });
-
-        ////////////////////////////////////////////////////////////////
-
-        /* // Mise à jour des données de dépense en fonction des données filtrées
-			dataExpenses = labels2.map(function (label) {
-			  return filteredData.reduce(function (total, item) {
-				return total + (item[label] || 0);
-			  }, 0);
-			}); */
-        //////////////////////////////////////////////////////////////////////////
         dataExpenses = labels2.map(function (label) {
           var values = filteredData.map(function (item) {
             return item[label] || 0;
@@ -2139,6 +2139,36 @@ generateLegend();
 var request = new XMLHttpRequest();
 request.open("GET", "./data/BD_conso.json", true);
 
+function updateYearRange(
+  data,
+  commune,
+  epci,
+  batiment,
+  renovation,
+  batiselectArray
+) {
+  var years = new Set();
+  data.forEach(function (d) {
+    if (
+      (commune.length === 0 || commune.includes(d["NOM_COM"])) &&
+      (epci.length === 0 || epci.includes(d["NOM_EPCI"])) &&
+      (batiment === "" || batiment === d["TYPE"]) &&
+      (renovation === "" || renovation === d["RENOVATION"]) &&
+      (batiselectArray.length === 0 || batiselectArray.includes(d["NOM_BATI"]))
+    ) {
+      years.add(+d["ANNEE"]);
+    }
+  });
+  var minYear = Math.min(...years);
+  var maxYear = Math.max(...years);
+  $("#rangeSlider3").data("ionRangeSlider").update({
+    min: minYear,
+    max: maxYear,
+    from: maxYear,
+    to: maxYear,
+  });
+}
+
 // Fonction pour mettre à jour les chiffres clés de consommation et de dépense totale
 function updateChiffresCles(
   data,
@@ -2262,6 +2292,8 @@ request.onload = function () {
 
     // Initialisation du curseur de plage d'années
     initializeRangeSlider(data, minYear, maxYear);
+    // Mise à jour initiale de la plage d'années
+    updateYearRange(data, [], [], "", "", []);
 
     // Ajout d'un écouteur d'événements pour mettre à jour les chiffres clés
     // Crée une fonction pour attacher le gestionnaire d'événements
@@ -2278,6 +2310,15 @@ request.onload = function () {
             function (option) {
               return option.value;
             }
+          );
+          // Mise à jour de la plage d'années
+          updateYearRange(
+            data,
+            commune,
+            epci,
+            batiment,
+            renovation,
+            batiselectArray
           );
 
           // Mise à jour des chiffres clés avec les nouvelles valeurs des filtres
@@ -2421,22 +2462,3 @@ var renovSelections = document.getElementById("selections-renov").innerHTML;
 
 // Récupère le label
 var batiLabel = document.getElementById("selections-bati-label").innerHTML;
-
-// Imprime les valeurs
-console.log("Sélections Com: " + comSelections);
-console.log("Sélections EPCI: " + epciSelections);
-console.log("Sélections Bat: " + batSelections);
-console.log("Sélections Combat: " + combatSelections);
-console.log("Sélections Renov: " + renovSelections);
-console.log("Bati Label: " + batiLabel);
-
-// couleur
-window.chartColors = {
-  red: "rgb(255, 99, 132)",
-  orange: "rgb(255, 159, 64)",
-  yellow: "rgb(255, 205, 86)",
-  green: "rgb(75, 192, 192)",
-  blue: "rgb(54, 162, 235)",
-  purple: "rgb(153, 102, 255)",
-  grey: "rgb(231,233,237)",
-};

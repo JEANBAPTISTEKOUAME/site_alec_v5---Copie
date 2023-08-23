@@ -30,6 +30,8 @@
 body,
 html {
   height: 100vh;
+  background-color: #c2c1c8;
+  /* Couleur de fond bleue claire */
 }
 
 header {
@@ -38,9 +40,9 @@ header {
   left: 5%;
   right: 4.8%;
   height: 180px;
-  background-color: #2f5388;
+  background-color: #1f447a;
   border-radius: 0 0 15px 15px;
-  border: 1px solid #ccc;
+  border: 1px solid #1e1717;
 }
 
 
@@ -529,6 +531,42 @@ button1:hover:last-child {
   z-index: 9000;
 }
 
+/* Style général des boutons */
+button {
+  background-color: #14304e;
+  /* Couleur de fond bleue */
+  color: white;
+  /* Couleur du texte blanche */
+  border: none;
+  /* Pas de bordure */
+  padding: 10px 20px;
+  /* Espacement interne */
+  text-align: center;
+  /* Centrage du texte */
+  text-decoration: none;
+  /* Pas de soulignement */
+  display: block;
+  /* Affichage en ligne */
+  font-size: 16px;
+  /* Taille de la police */
+  margin: 4px 2px;
+  /* Marges externes */
+  cursor: pointer;
+  /* Curseur en forme de main */
+  border-radius: 5px;
+  /* Bords arrondis */
+  transition: background-color 0.3s;
+  /* Transition en douceur */
+  width: 100%;
+}
+
+/* Style au survol des boutons */
+button:hover {
+  background-color: #2d6198;
+  /* Couleur de fond bleue plus foncée au survol */
+}
+
+
 #liste-container5 {
   position: relative;
   background: #fff;
@@ -632,26 +670,48 @@ input[type="checkbox"]:checked {
   z-index: 9999;
 }
 
+/* Style du conteneur des sélections en cours */
 #selections-container {
-  position: absolute;
-  height: 260px;
-  width: 320px;
-  top: 320px;
-  border: 1px solid #ccc;
-  box-shadow: 2px 2px 5px #888;
-  border-radius: 15px 0px 0px 15px;
-  padding-left: 20px;
-  padding-right: 20px;
-  text-align: justify;
-  overflow-y: scroll;
-  z-index: 2;
+  background-color: #fbfbfb;
+  /* Couleur de fond légèrement bleutée */
+  padding: 15px;
+  /* Espacement interne */
+  border-radius: 5px;
+  /* Bords arrondis */
+  border: 1px solid #818181;
+  /* Bordure bleue */
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+  /* Ombre douce */
 }
 
-#selections-container::-webkit-scrollbar {
-  width: 5px;
-  border-radius: 0px 15px 0px 15px;
-  z-index: 1;
+#selections-container h4 {
+  color: #0d233ac0;
+  text-align: center;
+  /* Couleur de titre bleue */
+  margin-bottom: 20px;
+  /* Marge sous le titre */
 }
+
+#selections-container ul {
+  list-style-type: none;
+  /* Pas de puces */
+  padding: 0;
+  /* Pas d'espacement interne */
+}
+
+#selections-container li {
+  padding: 5px;
+  /* Espacement interne des éléments de liste */
+  margin: 5px 0;
+  /* Marge entre les éléments de liste */
+  border: 1px solid #c5cfd9;
+  /* Bordure bleue */
+  border-radius: 5px;
+  /* Bords arrondis */
+  color: #060e3d;
+  /* Texte bleu */
+}
+
 
 /* Paramétrage de la sidebar informative */
 body .sidebar {
@@ -1012,4 +1072,26 @@ h100 {
   border-radius: 5px;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   /* Une petite ombre pour la légende */
+}
+
+/* ccs de la liste des batiments*/
+.button-container {
+  margin-bottom: 0;
+  /* Élimine l'espace sous le bouton */
+}
+
+#batiments-container {
+  position: relative;
+  transition: opacity 0.3s;
+  margin-top: 0;
+  /* Élimine l'espace au-dessus de la liste */
+}
+
+#liste-container-batiments select {
+  position: absolute;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  z-index: 1;
 }

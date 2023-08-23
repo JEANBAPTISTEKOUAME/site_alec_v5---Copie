@@ -52,22 +52,23 @@
         </select>
         <div style="display: flex">
           <!-- Bouton de désélection des bâtiments (tous sélectionnés par défaut, bug) -->
-          <button1 id="deselect-all">Désélection des bâtiments</button1>
+          <button id="deselect-all">Désélection des bâtiments</button>
         </div>
       </div>
     </div>
 
     <!-- Affichage de la légende permettant de faire des sélection -->
     <div class id="legende">
-      <h1>Menu de sélection</h1>
+        <!-- <h1>Menu de sélection</h1>
       <p>Ce menu permet de mettre à jour la carte, les chiffres clés et les graphiques.
         <p />
         <br>
-        
+           -->
+           <br>
         <!-- Paramétrage du bouton de sélection des EPCI -->
       <div>
         <div class="button-container">
-           <button1 id="btn-choix5">EPCI</button1>
+           <button id="btn-choix5">EPCI</button>
           <label>
             <!-- Une case à cocher qui sera cochée par défaut. Lorsque l'utilisateur cliquera dessus, 
               la fonction switchlayer() sera appelée avec l'argument 'epci_name' ( à voir, supprimer plus tard)-->
@@ -86,12 +87,12 @@
       <!-- Paramétrage du bouton de sélection des communes -->
       <div>
         <div class="button-container">
-          <button1 id="btn-choix">Communes</button1>
+          <button id="btn-choix">COMMUNES</button>
           <label>
             <!-- Une case à cocher qui sera cochée par défaut. 
-              Lorsque l'utilisateur cliquera dessus, la fonction switchlayer() sera appelée avec l'argument 'NOM_COM' ( à voir, supprimer plus tard) -->
+              Lorsque l'utilisateur cliquera dessus, la fonction switchlayer() sera appelée avec l'argument 'NOM_COM' ( à voir, supprimer plus tard)
             <input type="checkbox" id="NOM_COMCB" value="NOM_COM" onchange="switchlayer('NOM_COM')" checked />
-            <span style="margin-left: 5px;">Afficher/masquer</span>
+            <span style="margin-left: 5px;">Afficher/masquer</span>  -->
           </label>
         </div>
         <!-- Une div pour la liste déroulante qui ne sera pas affichée par défaut -->
@@ -105,7 +106,7 @@
       <!-- Paramétrage du bouton de sélection du type de bâtiment -->
       <div>
         <div class="button-container">
-          <button1 id="btn-choix2">Type de bâtiment</button1>
+          <button id="btn-choix2">TYPE DE BÂTIMENT</button>
           <!-- Une div pour la liste déroulante qui ne sera pas affichée par défaut -->
         </div>
         <div id="liste-container2" style="display:none">
@@ -118,7 +119,7 @@
       <!-- Paramétrage du bouton de sélection de l'état de rénovation -->
       <div>
         <div class="button-container">
-          <button1 id="btn-choix4">Rénovation</button1>
+          <button id="btn-choix4">RENOVATION</button>
           <!-- Une div pour la liste déroulante qui ne sera pas affichée par défaut -->
         </div>
         <div id="liste-container4" style="display:none">
@@ -127,15 +128,29 @@
           </select>
         </div>
 
+<!--- Un bouton pour afficher la liste des bâtiments-->
+        
+<div id="batiments-container">
+  <div class="button-container">
+    <button id="btn-choix-batiments">LISTE DES BÂTIMENTS</button>
+  </div>
+  <div id="liste-container-batiments" style="display:none">
+    <select id="liste-choix-batiments" multiple>
+      <!-- Les options seront ajoutées dynamiquement ici -->
+    </select>
+  </div>
+</div>
+
+
         <!--- Un bouton pour mettre à jour les graphiques apèrs avoir effectué des selections -->
     <div class="bouton-contenair">
-      <button1 id ="updateChartButton"> Mise à jour du graphique</button1>
+      <button id ="updateChartButton">ACTUALISER LES GRAPHIQUES</button>
     </div>
       </div>
 
       <!-- Un menu qui récapitule toutes les sélections en cours sur la page ( à voir, supprimer plus tard) -->
       <div id="selections-container">
-        <h3>Sélection(s) en cours</h3>
+        <h4>VOTRE SELECTION EN COURS</h4>
         <ul id="selections-com"></ul>
         <ul id="selections-epci"></ul>
         <ul id="selections-bat"></ul>
@@ -194,9 +209,9 @@
       <h1>Répartition de consommation <br>et de dépense par type d'énergie</h1>
       <div style="display: flex; padding: 0px 40px">
         <!-- Un bouton pour sélectionner le graphique de consommation (par défaut) -->
-        <button1 id="consommationBtn">Conso</button1>
+        <button id="consommationBtn">Conso</button>
         <!-- Un bouton pour sélectionner le graphique de dépenses -->
-        <button1 id="depenseBtn">Dépense</button1>
+        <button id="depenseBtn">Dépense</button>
       </div>
       <!-- Une div pour afficher le troisième graphique -->
       <div class="graphique">

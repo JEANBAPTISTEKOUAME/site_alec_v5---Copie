@@ -338,7 +338,7 @@ map.on("load", function () {
           ],
 
           "circle-radius": 4,
-          "circle-stroke-width": 6,
+          "circle-stroke-width": 4,
           "circle-stroke-color": "#fff",
         },
         // Zoom minimal à partir duquel les points deviennent des clusters
@@ -1277,10 +1277,12 @@ fetch("./data/BD_conso.json")
       "rgba(54, 162, 235, 0.7)", //ELEC
       "rgba(255, 206, 86, 0.7)", // gaz na
       "rgba(255, 159, 64, 0.7)", //cit
-      "rgba(255, 99, 132, 0.7)", // fioul
+      "rgba(50, 50, 50, 0.7)", // fioul
       "rgba(153, 102, 255, 0.7)", // chaleur
-      "rgba(50, 50, 50, 0.7)", //bois
-      "rgba(0, 255, 0, 0.7)", //ENR
+
+      "rgba(0, 255, 0, 0.7)", //bois
+      "#2f5388", //enr
+      ,
     ];
     // Création des ensembles de données pour le graphique
     // Initialize empty arrays for line and bar data sets
@@ -1289,7 +1291,7 @@ fetch("./data/BD_conso.json")
 
     energyTypes.forEach((type, index) => {
       const lineDataset = {
-        label: `Dépense en ${type}`,
+        label: `${type}`,
         data: expenditureData[type],
         backgroundColor: "rgba(0, 0, 0, 0)", // invisible
         borderColor: colors[index].replace("0.7", "0.9"), // more opaque
@@ -1300,7 +1302,7 @@ fetch("./data/BD_conso.json")
       };
 
       const barDataset = {
-        label: `Consommation en ${type}`,
+        label: `Consos ${type}`,
         data: energyData[type],
         backgroundColor: colors[index], // normal opacity
         yAxisID: "y-axis-1",
@@ -1333,7 +1335,7 @@ fetch("./data/BD_conso.json")
               const dataset = data.datasets[tooltipItem.datasetIndex];
               const label = dataset.label || "";
               const value = dataset.data[tooltipItem.index];
-              const unit = label.includes("Consommation") ? "kW/h" : "€";
+              const unit = label.includes("Consommation") ? "kWh" : "€";
               return `${label}: ${value} ${unit}`;
             },
           },
@@ -1372,8 +1374,8 @@ fetch("./data/BD_conso.json")
           ],
           xAxes: [
             {
-              categoryPercentage: 0.8, // largeur entre les années
-              barPercentage: 0.6, // largeur entre les categories
+              categoryPercentage: 0.9, // largeur entre les années
+              barPercentage: 0.9, // largeur entre les categories
               stacked: true, // pour transformé en diagramme ampilé
             },
           ],
@@ -2001,7 +2003,7 @@ fetch("./data/BD_conso.json")
         datasets: [
           {
             label:
-              "La couleur des bulles varie en fonction du type de bâtiment",
+              "Le couleur des bulles varie en fonction du type de bâtiment",
             data: [],
             backgroundColor: colors,
             hoverBackgroundColor: colors,
@@ -2666,3 +2668,25 @@ var renovSelections = document.getElementById("selections-renov").innerHTML;
 
 // Récupère le label
 var batiLabel = document.getElementById("selections-bati-label").innerHTML;
+
+//test
+
+// Gestionnaire d'événements pour afficher la liste déroulante au survol
+$("#batiments-container").hover(
+  function () {
+    $("#liste-container-batiments").show();
+  },
+  function () {
+    $("#liste-container-batiments").hide();
+  }
+);
+
+// Exemple de données pour les bâtiments (à remplacer par vos données réelles)
+var batiments = ["Bâtiment 1", "Bâtiment 2", "Bâtiment 3"];
+
+// Remplir les options de la liste déroulante dynamiquement
+batiments.forEach(function (batiment) {
+  $("#liste-choix-batiments").append(
+    '<option value="' + batiment + '">' + batiment + "</option>"
+  );
+});
